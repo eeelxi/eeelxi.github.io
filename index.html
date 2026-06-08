@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>17</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f2f5;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* БАЗОВЫЙ ОПТИМИЗИРОВАННЫЙ КЛАСС ДЛЯ GPU */
+        .hypno-layer {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 142vmax;
+            height: 142vmax;
+            background-size: 100% 100%;
+            opacity: 0.22; /* Мягкая прозрачность для комфортного восприятия муара */
+            will-change: transform;
+        }
+
+        /* СЛОЙ 1: НЕЧЕТНЫЕ КОЛЬЦА (Вращение по часовой + сжатие) */
+        .hypno-bg-odd {
+            z-index: 1;
+            background: 
+                repeating-radial-gradient(
+                    circle at center,
+                    transparent 0px,
+                    transparent 3px,
+                    #f0f2f5 3px,
+                    #f0f2f5 6px
+                ),
+                conic-gradient(
+                    from 0deg,
+                    #ff0000, #ff7700, #ffdd00, #00ff00, #0000ff, #8b00ff, #ff0000
+                );
+            animation: spinOdd 4.5s linear infinite;
+        }
+
+        /* СЛОЙ 2: ЧЕТНЫЕ КОЛЬЦА (Вращение против часовой + расширение) */
+        .hypno-bg-even {
+            z-index: 2;
+            background: 
+                repeating-radial-gradient(
+                    circle at center,
+                    #f0f2f5 0px,
+                    #f0f2f5 3px,
+                    transparent 3px,
+                    transparent 6px
+                ),
+                conic-gradient(
+                    from 0deg,
+                    #ff0000, #ff7700, #ffdd00, #00ff00, #0000ff, #8b00ff, #ff0000
+                );
+            animation: spinEven 4.5s linear infinite;
+        }
+
+        /* ГЛАВНЫЙ КОНТЕЙНЕР НА GPU */
+        .scene-container {
+            position: relative;
+            width: 420px;
+            height: 420px;
+            z-index: 10;
+            
+            transform: translate3d(0, 0, 0);
+            will-change: transform;
+            animation: spin 4s linear infinite;
+        }
+
+        /* РАДУЖНЫЙ ШЛЕЙФ С ВЫСОКОЙ ПРОИЗВОДИТЕЛЬНОСТЬЮ */
+        .rainbow-track {
+            position: absolute;
+            top: -5.5px; 
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 5;
+            
+            filter: opacity(1); 
+            animation: rainbowShift 3s linear infinite;
+        }
+
+        /* КОНТЕЙНЕР ДЛЯ МАШИНКИ */
+        .car-wrapper {
+            position: absolute;
+            left: calc(50% - 130.2px); 
+            top: -1.5px;
+            width: 126px; 
+            height: 84px; 
+            z-index: 10;
+            
+            transform: translate3d(0, 0, 0) rotate(-17deg);
+            will-change: transform;
+            mix-blend-mode: normal; 
+        }
+
+        .car-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: transparent;
+            /* ИЗМЕНЕНО: Добавлен invert(1) для инверсии цвета самой машинки */
+            filter: invert(1) brightness(0.6) contrast(1.4) saturate(1.5);
+        }
+
+        .car-rainbow-full {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.65; 
+        }
+
+        .car-rainbow-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            animation: rainbowShift 3s linear infinite;
+            background: transparent;
+        }
+
+        /* ОПТИМИЗИРОВАННЫЕ GPU-АНИМАЦИИ */
+        @keyframes spin {
+            0% { transform: translate3d(0, 0, 0) rotate(0deg); }
+            100% { transform: translate3d(0, 0, 0) rotate(360deg); }
+        }
+
+        @keyframes spinOdd {
+            0% { transform: translate3d(-50%, -50%, 0) rotate(0deg) scale(0.97); }
+            50% { transform: translate3d(-50%, -50%, 0) rotate(180deg) scale(1.03); }
+            100% { transform: translate3d(-50%, -50%, 0) rotate(360deg) scale(0.97); }
+        }
+
+        @keyframes spinEven {
+            0% { transform: translate3d(-50%, -50%, 0) rotate(360deg) scale(1.03); }
+            50% { transform: translate3d(-50%, -50%, 0) rotate(180deg) scale(0.97); }
+            100% { transform: translate3d(-50%, -50%, 0) rotate(0deg) scale(1.03); }
+        }
+
+        /* Цикличная смена цветов шлейфа */
+        /* ИЗМЕНЕНО: Убран invert(1), чтобы цвета шлейфа и радужной копии инвертировались относительно прошлого состояния */
+        @keyframes rainbowShift {
+            0%   { color: #ff0000; filter: sepia(1) saturate(25) brightness(0.8) hue-rotate(0deg); }
+            17%  { color: #ff7700; }
+            33%  { color: #ffdd00; }
+            50%  { color: #00ff00; filter: sepia(1) saturate(25) brightness(0.8) hue-rotate(180deg); }
+            67%  { color: #0000ff; }
+            83%  { color: #8b00ff; }
+            100% { color: #ff0000; filter: sepia(1) saturate(25) brightness(0.8) hue-rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- СЛОЙ 1: НЕЧЕТНЫЕ КОЛЬЦА -->
+    <div class="hypno-layer hypno-bg-odd"></div>
+
+    <!-- СЛОЙ 2: ЧЕТНЫЕ КОЛЬЦА -->
+    <div class="hypno-layer hypno-bg-even"></div>
+
+    <!-- КОНТЕЙНЕР С МАШИНКОЙ -->
+    <div class="scene-container">
+        
+        <!-- КРУГОВОЙ АНИМИРОВАННЫЙ ШЛЕЙФ -->
+        <svg class="rainbow-track" viewBox="0 0 100 100">
+            <defs>
+                <linearGradient id="smoothTrail" x1="0%" y1="0%" x2="100%" y2="50%">
+                    <stop offset="0%" stop-color="currentColor" stop-opacity="1" />
+                    <stop offset="30%" stop-color="currentColor" stop-opacity="0.85" />
+                    <stop offset="60%" stop-color="currentColor" stop-opacity="0.6" />
+                    <stop offset="90%" stop-color="currentColor" stop-opacity="0.2" />
+                    <stop offset="100%" stop-color="transparent" stop-opacity="0" />
+                </linearGradient>
+            </defs>
+            
+            <circle cx="50" cy="50" r="48" 
+                    stroke="url(#smoothTrail)" 
+                    stroke-width="1.8" 
+                    fill="none" 
+                    stroke-dasharray="120 302" 
+                    transform="rotate(97 50 50)" 
+                    stroke-linecap="round" />
+        </svg>
+        
+        <!-- МАШИНКА В ВЫРОВНЕННОМ ПОЛОЖЕНИИ -->
+        <div class="car-wrapper">
+            <img src="car.png" alt="Машинка" class="car-image">
+            <div class="car-rainbow-full">
+                <img src="car.png" alt="Машинка" class="car-rainbow-image">
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>
